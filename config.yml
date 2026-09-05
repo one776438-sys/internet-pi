@@ -1,0 +1,41 @@
+---
+# Configuration for Pi Cluster deployment on pibox
+config_dir: '/home/backtracker'
+
+domain_name_enable: false
+domain_name: 'home.local'
+domain_pihole: 'pihole'
+domain_grafana: 'grafana'
+domain_prometheus: 'prometheus'
+
+# Secondary IP Alias configuration for internal DNS
+dns_alias_ip_enable: true
+dns_alias_ip: '10.10.10.10/32'
+
+# Pi-hole configuration
+pihole_enable: true
+pihole_hostname: pihole
+pihole_timezone: America/New_York
+pihole_password: "Password!1"
+
+# Internet monitoring configuration
+monitoring_enable: true
+monitoring_grafana_port: 3031
+monitoring_grafana_admin_password: "Password!1"
+monitoring_speedtest_interval: 60m
+monitoring_ping_interval: 5s
+monitoring_ping_hosts:
+  - http://www.google.com/;google.com
+  - https://github.com/;github.com
+  - https://cloudflare.com/;cloudflare.com
+
+# Prometheus configuration
+prometheus_monitor_prometheus: false
+prometheus_node_exporter_targets:
+  - 'nodeexp:9100'
+prometheus_extra_scrape_configs: ''
+prometheus_tsdb_retention_time: 90d
+
+shelly_plug_enable: false
+airgradient_enable: false
+starlink_enable: false

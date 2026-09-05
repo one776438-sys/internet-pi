@@ -1,0 +1,41 @@
+---
+- name: Deploy dns-ip-alias systemd service unit
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/dns-ip-alias.service
+    content: |
+      [Unit]
+      Description=Assign 10.10.10.10 secondary IP alias for internal DNS
+      After=network.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/sbin/ip addr replace 10.10.10.10/32 dev eth0
+      ExecStart=/sbin/ip addr replace 10.10.10.10/32 dev lo
+      ExecStop=/sbin/ip addr del 10.10.10.10/32 dev eth0
+      ExecStop=/sbin/ip addr del 10.10.10.10/32 dev lo
+      RemainAfterExit=yes
+
+      [Install]
+      WantedBy=multi-user.target
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable and start dns-ip-alias service
+  ansible.builtin.systemd:
+    name: dns-ip-alias
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: Check if Tailscale is present
+  ansible.builtin.command: which tailscale
+  failed_when: false
+  changed_when: false
+  register: tailscale_check
+
+- name: Advertise 10.10.10.10/32 via Tailscale subnet routing
+  ansible.builtin.command:
+    cmd: tailscale set --advertise-routes=10.10.10.10/32
+  when: tailscale_check.rc == 0
+  changed_when: false

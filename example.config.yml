@@ -15,8 +15,13 @@ pihole_hostname: pihole
 pihole_timezone: America/Chicago
 pihole_password: "change-this-password"
 
+# Secondary IP Alias for internal DNS
+dns_alias_ip_enable: true
+dns_alias_ip: "10.10.10.10/32"
+
 # Internet monitoring configuration.
 monitoring_enable: true
+monitoring_grafana_port: 3031
 monitoring_grafana_admin_password: "admin"
 monitoring_speedtest_interval: 60m
 monitoring_ping_interval: 5s

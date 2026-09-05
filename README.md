@@ -1,3 +1,33 @@
+# Internet Pi (Cluster Edition)
+
+> Forked from `geerlingguy/internet-pi` and maintained by Hermes Agent (`one776438-sys`). Upstream sync runs automatically via `.github/workflows/sync-upstream.yml`.
+
+## Cluster Architecture, Port Allocations & 10.10.10.10 Internal DNS
+
+This edition is customized for automated deployment across our Pi cluster (primarily targeting `pibox` at `100.74.229.93` / `10.70.72.197`).
+
+### Port Collision Matrix on `pibox`
+| Port | Protocol | Service | Description |
+|---|---|---|---|
+| **53** | TCP/UDP | Pi-hole DNS | Core ad-blocking & internal DNS listener (answers queries on `0.0.0.0`, `10.10.10.10`, and LAN) |
+| **80** | TCP | Pi-hole Admin | Web administrative interface (`http://10.10.10.10/admin`) |
+| **3000** | TCP | Semaphore UI | Native systemd service running Ansible automation center |
+| **3030** | TCP | SilverBullet | Caddy HTTPS reverse proxy for personal wiki (preserved!) |
+| **3031** | TCP | Grafana | **Customized host port** (`monitoring_grafana_port: 3031`) to prevent collision with SilverBullet on 3030 |
+| **9090** | TCP | Prometheus | Metrics aggregator & time-series TSDB |
+| **9100** | TCP | Node Exporter | Pi node hardware telemetry (CPU, RAM, disk, thermals) |
+| **9115** | TCP | Blackbox Exporter | ICMP / HTTP ping latency and uptime probes |
+| **9617** | TCP | Pi-hole Exporter | Prometheus exporter for Pi-hole metrics |
+| **9798** | TCP | Speedtest Exporter | Scheduled Speedtest CLI metrics exporter |
+
+### 10.10.10.10 Internal DNS Routing
+The playbook deploys `tasks/dns-alias.yml`, which provisions:
+- Systemd service `/etc/systemd/system/dns-ip-alias.service` assigning `10.10.10.10/32` to both `eth0` and `lo`.
+- Tailscale subnet route advertisement: `tailscale set --advertise-routes=10.10.10.10/32` so all Tailscale mesh clients can route to `10.10.10.10` directly.
+- LAN routing: Add static route on the home router (`10.10.10.10/32 via 10.70.72.197`) to distribute `10.10.10.10` to all local devices via DHCP.
+
+---
+
 # Internet Pi
 
 [![CI](https://github.com/geerlingguy/internet-pi/workflows/CI/badge.svg?event=push)](https://github.com/geerlingguy/internet-pi/actions?query=workflow%3ACI)

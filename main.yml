@@ -1,6 +1,6 @@
 ---
 - name: Configure Internet Pi.
-  hosts: internet_pi
+  hosts: "{{ target_hosts | default('internet_pi:pibox:all') }}"
   become: true
 
   pre_tasks:
@@ -28,6 +28,10 @@
       ansible.builtin.import_tasks: tasks/handlers.yml
 
   tasks:
+    - name: Setup 10.10.10.10 DNS alias IP.
+      ansible.builtin.import_tasks: tasks/dns-alias.yml
+      when: dns_alias_ip_enable | default(true)
+
     - name: Setup Docker.
       ansible.builtin.import_tasks: tasks/docker.yml
 
