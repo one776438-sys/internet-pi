@@ -27,6 +27,7 @@
     enabled: true
     state: started
     daemon_reload: true
+  when: not ansible_check_mode
 
 - name: Check if Tailscale is present
   ansible.builtin.command: which tailscale
@@ -37,5 +38,7 @@
 - name: Advertise 10.10.10.10/32 via Tailscale subnet routing
   ansible.builtin.command:
     cmd: tailscale set --advertise-routes=10.10.10.10/32
-  when: tailscale_check.rc == 0
+  when:
+    - tailscale_check.rc == 0
+    - not ansible_check_mode
   changed_when: false
