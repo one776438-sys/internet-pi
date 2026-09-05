@@ -1,0 +1,20 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Sync with geerlingguy/internet-pi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync upstream
+        run: |
+          gh repo sync ${{ github.repository }} --branch master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
