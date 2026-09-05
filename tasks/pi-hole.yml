@@ -28,6 +28,7 @@
     path: "/etc/resolvconf.conf"
     state: touch
     mode: "744"
+  when: resolvconf_update_enable | default(false)
 
 - name: Update resolveconf for local name server use.
   ansible.builtin.lineinfile:
@@ -35,8 +36,11 @@
     dest: "/etc/resolvconf.conf"
     regexp: "^#?name_servers="
   register: resolvconf_file
+  when: resolvconf_update_enable | default(false)
 
 - name: Regenerate resolvconf if file is changed.
   ansible.builtin.command: resolvconf -u
   changed_when: false
-  when: resolvconf_file is changed
+  when:
+    - resolvconf_update_enable | default(false)
+    - resolvconf_file is changed
